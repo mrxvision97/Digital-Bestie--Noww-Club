@@ -7,6 +7,7 @@ langchain
 langchain-openai
 langchain-community
 langchain-core
+openai
 
 # Graph and memory management
 langgraph
@@ -17,6 +18,7 @@ pydantic
 
 # Date and time handling
 python-dateutil
+pytz
 
 # File handling and paths
 pathlib
@@ -26,6 +28,7 @@ json5
 
 # Search functionality
 duckduckgo-search
+serpapi
 
 # Async support
 aiohttp
@@ -37,3 +40,13 @@ loguru
 # Optional but recommended for better performance
 numpy
 pandas
+
+# Additional utilities
+requests
+beautifulsoup4
+regex
+uuid
+
+# NLP and text processing
+spacy
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
