@@ -1,0 +1,39 @@
+# Core dependencies
+streamlit
+python-dotenv
+
+# LangChain and OpenAI
+langchain
+langchain-openai
+langchain-community
+langchain-core
+
+# Graph and memory management
+langgraph
+
+# Type hints and utilities
+typing-extensions
+pydantic
+
+# Date and time handling
+python-dateutil
+
+# File handling and paths
+pathlib
+
+# JSON handling
+json5
+
+# Search functionality
+duckduckgo-search
+
+# Async support
+aiohttp
+asyncio
+
+# Error handling and logging
+loguru
+
+# Optional but recommended for better performance
+numpy
+pandas
