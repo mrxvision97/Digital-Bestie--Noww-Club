@@ -3,7 +3,7 @@ services:
     name: noww-club-ai
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: streamlit run "app.py" --server.port $PORT --server.address 0.0.0.0
+    startCommand: streamlit run Noww_club.py
     envVars:
       - key: OPENAI_API_KEY
-        sync: false 
+        sync: false
