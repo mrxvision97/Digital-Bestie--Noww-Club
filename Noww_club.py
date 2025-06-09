@@ -41,19 +41,23 @@ class FlowManager:
     def __init__(self):
         self.active_flow = None
         self.flow_step = 0
-        self.flow_data = {}
-        self.flow_state = {}
+        self.flow_data = {}  # Initialize empty flow data
         self.paused_flows = []
-        self.last_flow_context = None
-        self.last_answered_step = 0  # Track the last step that was answered
+        self.flow_state = {}  # Initialize empty flow state
+        self.last_flow_context = None  # Store last flow context
 
     def start_flow(self, flow_type):
         """Start a new flow"""
         self.active_flow = flow_type
-        self.flow_step = 1
-        self.flow_data = {}
-        self.flow_state = {}
-        self.last_answered_step = 0
+        self.flow_step = 0
+        self.flow_data = {}  # Reset flow data
+        self.flow_state = {}  # Reset flow state
+        self.last_flow_context = {
+            'type': flow_type,
+            'step': 0,
+            'data': {},
+            'state': {}
+        }
         print(f"Started new flow: {flow_type}")
 
     def pause_flow(self):
@@ -64,8 +68,7 @@ class FlowManager:
                 'type': self.active_flow,
                 'step': self.flow_step,
                 'data': self.flow_data.copy(),
-                'state': self.flow_state.copy(),
-                'last_answered_step': self.last_answered_step
+                'state': self.flow_state.copy()
             }
             self.paused_flows.append(flow_context)
             self.last_flow_context = flow_context
@@ -75,7 +78,6 @@ class FlowManager:
             self.flow_step = 0
             self.flow_data = {}
             self.flow_state = {}
-            self.last_answered_step = 0
             print(f"Paused flow: {flow_context['type']}")
 
     def resume_last_flow(self):
@@ -86,7 +88,6 @@ class FlowManager:
             self.flow_step = last_flow['step']
             self.flow_data = last_flow['data'].copy()
             self.flow_state = last_flow['state'].copy()
-            self.last_answered_step = last_flow.get('last_answered_step', 0)
             self.last_flow_context = last_flow.copy()
             
             # Get the appropriate resume message based on flow type and step
@@ -98,56 +99,81 @@ class FlowManager:
     def _get_resume_message(self, flow_type, step):
         """Get appropriate resume message based on flow type and step"""
         if flow_type == "habit":
-            if step == 1:
-                return "What habit would you like to build?"
+            if step == 0:
+                return "Let's continue creating your habit. What habit would you like to build?"
+            elif step == 1:
+                return "How often would you like to practice this habit?\n\n**Available Options:**\n1. Daily\n2. Weekly\n3. Specific Days"
             elif step == 2:
-                return "How often would you like to practice this habit? (e.g., daily, weekly, specific days)"
+                return "Which days would you like to practice? (You can select multiple)\n\n**Available Days:**\n1. Monday\n2. Tuesday\n3. Wednesday\n4. Thursday\n5. Friday\n6. Saturday\n7. Sunday"
             elif step == 3:
-                return "What's your motivation for building this habit? This will help you stay committed."
+                return "What's your motivation for this habit?"
             elif step == 4:
-                return "How would you like to receive reminders? (Email, SMS, or Push Notification)"
+                return "How would you like to receive reminders?\n\n**Available Options:**\n1. Push Notification\n2. WhatsApp\n3. Google Calendar"
             elif step == 5:
-                return "What time would you like to receive the reminder? (e.g., 9:00 AM)"
+                return "What time would you like to receive reminders?\n\n**Example Formats:**\n1. 7:00 AM\n2. 9 PM\n3. 15:30\n4. 7 AM"
+        
         elif flow_type == "goal":
-            if step == 1:
-                return "What goal would you like to achieve?"
+            if step == 0:
+                return "Let's continue setting your goal. What goal would you like to achieve?"
+            elif step == 1:
+                return "What's your target date for achieving this goal?\n\n**Example Formats:**\n1. 2024-12-31\n2. December 31, 2024\n3. in 6 months"
             elif step == 2:
-                return "When would you like to achieve this goal by?"
+                return "How would you like to track your progress?\n\n**Available Options:**\n1. Daily Check-ins\n2. Weekly Reviews\n3. Monthly Assessments"
             elif step == 3:
-                return "What are the steps you'll take to achieve this goal?"
+                return "What's your motivation for this goal?"
             elif step == 4:
-                return "How would you like to receive reminders? (Email, SMS, or Push Notification)"
+                return "Would you like to set up reminders for this goal?\n\n**Available Options:**\n1. Yes\n2. No"
             elif step == 5:
-                return "What time would you like to receive the reminder? (e.g., 9:00 AM)"
+                return "How would you like to receive reminders?\n\n**Available Options:**\n1. Push Notification\n2. WhatsApp\n3. Google Calendar"
+            elif step == 6:
+                return "What time would you like to receive reminders?\n\n**Example Formats:**\n1. 7:00 AM\n2. 9 PM\n3. 15:30"
+        
         elif flow_type == "reminder":
-            if step == 1:
-                return "What would you like to be reminded about?"
+            if step == 0:
+                return "Let's continue setting up your reminder. What would you like to be reminded about?"
+            elif step == 1:
+                return "When would you like to be reminded?\nChoose from:\n• In 1 hour\n• Tomorrow\n• Next week\n• Custom time"
             elif step == 2:
-                return "How would you like to receive reminders? (Email, SMS, or Push Notification)"
+                return "How would you like to receive this reminder?\n\n**Available Options:**\n1. Push Notification\n2. WhatsApp\n3. Google Calendar"
             elif step == 3:
-                return "What time would you like to receive the reminder? (e.g., 9:00 AM)"
-        return "Let's continue with your flow."
+                return "What time would you like to receive this reminder?\n\n**Example Formats:**\n1. 7:00 AM\n2. 9 PM\n3. 15:30"
+        
+        return "Let's continue where we left off."
+
+    def get_active_flow_type(self):
+        """Get the type of the active flow"""
+        return self.active_flow
+
+    def get_flow_step(self):
+        """Get the current step of the active flow"""
+        return self.flow_step
+
+    def increment_flow_step(self):
+        """Increment the current flow step"""
+        self.flow_step += 1
+        if self.last_flow_context:
+            self.last_flow_context['step'] = self.flow_step
+        print(f"Incremented flow step to: {self.flow_step}")
 
     def set_flow_data(self, key, value):
-        """Set data for the current flow"""
+        """Set a value in the flow data"""
         self.flow_data[key] = value
-        self.last_answered_step = self.flow_step  # Update last answered step when data is set
+        if self.last_flow_context:
+            self.last_flow_context['data'][key] = value
+        print(f"Set flow data {key}: {value}")
 
     def get_flow_data(self, key=None):
-        """Get data for the current flow"""
-        if key:
-            return self.flow_data.get(key)
-        return self.flow_data
+        """Get a value from the flow data or all data if no key provided"""
+        if key is None:
+            return self.flow_data
+        return self.flow_data.get(key)
 
     def clear_flow_data(self):
         """Clear all flow data"""
-        self.active_flow = None
-        self.flow_step = 0
         self.flow_data = {}
         self.flow_state = {}
-        self.last_answered_step = 0
-        self.paused_flows = []
         self.last_flow_context = None
+        print("Cleared flow data")
 
     def is_flow_active(self):
         """Check if there is an active flow"""
@@ -164,28 +190,13 @@ class FlowManager:
     def set_flow_state(self, key, value):
         """Set a value in the flow state"""
         self.flow_state[key] = value
+        if self.last_flow_context:
+            self.last_flow_context['state'][key] = value
+        print(f"Set flow state {key}: {value}")
 
     def get_flow_state_value(self, key):
         """Get a value from the flow state"""
         return self.flow_state.get(key)
-
-    def get_active_flow_type(self):
-        """Get the type of the active flow"""
-        return self.active_flow
-
-    def get_flow_step(self):
-        """Get the current flow step"""
-        return self.flow_step
-
-    def increment_flow_step(self):
-        """Increment the flow step"""
-        self.flow_step += 1
-        return self.flow_step
-
-    def set_flow_step(self, step):
-        """Set the flow step"""
-        self.flow_step = step
-        return self.flow_step
 
 class TimeExtractor:
     def __init__(self):
@@ -1764,7 +1775,16 @@ Respond in JSON format:
 Determine if the user's response is related to the current flow or if it's a different topic.
 
 Current step: {current_step}
+Flow type: {flow_type}
 User's response: "{user_input}"
+
+IMPORTANT RULES:
+1. For step 2 (motivation step) in habit flow, ANY response should be considered as valid motivation
+2. For step 3 (reminder method step) in habit flow, match the response to these options:
+   - If response contains 'email' or similar spelling, consider it as 'Email'
+   - If response contains 'sms' or similar spelling, consider it as 'SMS'
+   - If response contains 'push' or 'notification' or similar spelling, consider it as 'Push Notification'
+3. For other steps, determine if the response is related to the current flow
 
 Respond in JSON format:
 {{
